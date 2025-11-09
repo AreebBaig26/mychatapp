@@ -42,6 +42,7 @@ dependencies:
   firebase_database:
   image_picker:
   random_string:
+  shared_preferences:
 
 dev_dependencies:
   flutter_test:

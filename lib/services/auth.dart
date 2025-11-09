@@ -1,4 +1,5 @@
 import 'package:chatapp_real/services/database.dart';
+import 'package:chatapp_real/services/shared_pref.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // import 'package:google_sign_in/google_sign_in.dart' show GoogleSignInAccount, GoogleSignIn, GoogleSignInAuthentication;
@@ -23,12 +24,23 @@ class Authmethods {
     );
     UserCredential result = await firebaseAuth.signInWithCredential(credential);
     User? userDetails = result.user;
+    String username = userDetails!.email!.replaceAll("@gmail.com", "");
+    String firstletter = username.substring(0, 1);
+    await SharedPrefreferencesHelper().saveUserDisplayname(
+      userDetails.displayName!,
+    );
+    await SharedPrefreferencesHelper().saveUserEmail(userDetails.email!);
+    await SharedPrefreferencesHelper().saveUserId(userDetails.uid);
+    await SharedPrefreferencesHelper().saveUserImage(userDetails.photoURL!);
+    await SharedPrefreferencesHelper().SaveUsername(username);
     if (result != null) {
       Map<String, dynamic> userinfoMap = {
         "Name": userDetails!.displayName,
         "Email": userDetails.email,
         "Image": userDetails.photoURL,
         "Id": userDetails.uid,
+        "Username": username.toUpperCase(),
+        "Searchkey": firstletter,
       };
       await Databasemethods()
           .adduser(userinfoMap, userDetails.uid)
