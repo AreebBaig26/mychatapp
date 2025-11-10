@@ -1,4 +1,6 @@
 import 'package:chatapp_real/pages/chat_page.dart';
+import 'package:chatapp_real/services/database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -9,6 +11,48 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  TextEditingController searchController = new TextEditingController();
+  bool search = false;
+  var queryResultSet = [];
+  var tempSearchstore = [];
+  getthechatroomIdbyUsername(String a, String b) {
+    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
+      return "$b/_$a";
+    } else {
+      return "$a/_$b";
+    }
+  }
+
+  initiateSearch(value) {
+    if (value.lenght == 0) {
+      setState(() {
+        queryResultSet = [];
+        tempSearchstore = [];
+      });
+    }
+    setState(() {
+      search = true;
+    });
+    var capitalizedValue =
+        value.substring(0, 1).toUpperCase() + value.substring(1);
+    if (queryResultSet.isEmpty && value.lenght == 1) {
+      Databasemethods().Search(value).then((QuerySnapshot docs) {
+        for (int i = 0; i < docs.docs.length; i++) {
+          queryResultSet.add(docs.docs[i].data());
+        }
+      });
+    } else {
+      tempSearchstore = [];
+      queryResultSet.forEach((element) {
+        if (element['username'].startswith(capitalizedValue)) {
+          setState(() {
+            tempSearchstore.add(element);
+          });
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,6 +149,10 @@ class _HomeState extends State<Home> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: TextField(
+                          controller: searchController,
+                          onChanged: (value) {
+                            initiateSearch(value.toUpperCase());
+                          },
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -133,7 +181,7 @@ class _HomeState extends State<Home> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ChatPage(),
+                                    builder: (context) => ChatPage(name: '', profileurl: '', username: '',),
                                   ),
                                 );
                               },
