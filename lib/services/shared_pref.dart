@@ -36,7 +36,7 @@ class SharedPrefreferencesHelper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(userNamekey);
   }
-  Future<String?> GetUserName() async {
+  Future<String?> getUserName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(useruserNamekey);
   }

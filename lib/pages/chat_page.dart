@@ -6,12 +6,16 @@ import 'package:intl/intl.dart';
 import 'package:random_string/random_string.dart';
 
 class ChatPage extends StatefulWidget {
-  String name, profileurl, username;
-  ChatPage({
+  final String name;
+  final String profileurl;
+  final String username;
+
+  const ChatPage({
+    Key? key,
     required this.name,
     required this.profileurl,
     required this.username,
-  });
+  }) : super(key: key);
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -21,7 +25,7 @@ class _ChatPageState extends State<ChatPage> {
   String? MyUsername, MyName, MyEmail, Mypicture, chatroomId, messageId;
   TextEditingController MessageController = new TextEditingController();
   getthesharedpref() async {
-    MyUsername = await SharedPrefreferencesHelper().GetUserName();
+    MyUsername = await SharedPrefreferencesHelper().getUserName();
     MyName = await SharedPrefreferencesHelper().GetUserDisplayName();
     MyEmail = await SharedPrefreferencesHelper().GetUserEmail();
     Mypicture = await SharedPrefreferencesHelper().GetUserImage();
