@@ -48,4 +48,8 @@ class SharedPrefreferencesHelper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(userImagekey);
   }
+  Future<void> clearUserData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
+}
 }
