@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chatapp_real/services/database.dart';
@@ -71,10 +70,11 @@ class _HomeState extends State<Home> {
         var docs = snapshot.data!.docs;
 
         return ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
           itemCount: docs.length,
           itemBuilder: (context, index) {
             var docData = docs[index].data() as Map<String, dynamic>;
-            // String chatRoomId = docs[index].id;
             String lastMessage = docData["lastmessage"] ?? "";
 
             // Timestamp fix
@@ -100,27 +100,45 @@ class _HomeState extends State<Home> {
                   image = userSnap.data!.docs[0]["Image"] ?? "";
                 }
 
-                return ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatPage(
-                          name: name,
-                          profileurl: image,
-                          username: otherUser,
+                return Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChatPage(
+                            name: name,
+                            profileurl: image,
+                            username: otherUser,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  leading: CircleAvatar(
-                    backgroundImage: image.isNotEmpty ? NetworkImage(image) : null,
-                    backgroundColor: image.isEmpty ? Colors.grey.shade400 : Colors.transparent,
-                    child: image.isEmpty ? const Icon(Icons.person, color: Colors.white) : null,
+                      );
+                    },
+                    leading: CircleAvatar(
+                      radius: 28,
+                      backgroundImage: image.isNotEmpty ? NetworkImage(image) : null,
+                      backgroundColor: image.isEmpty ? Colors.grey.shade400 : Colors.transparent,
+                      child: image.isEmpty ? const Icon(Icons.person, color: Colors.white) : null,
+                    ),
+                    title: Text(
+                      name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      lastMessage,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                    trailing: Text(
+                      timeText,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
                   ),
-                  title: Text(name),
-                  subtitle: Text(lastMessage, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  trailing: Text(timeText, style: const TextStyle(fontSize: 12, color: Colors.grey)),
                 );
               },
             );
@@ -134,35 +152,48 @@ class _HomeState extends State<Home> {
     return searchResults.isEmpty
         ? const Center(child: Text("No user found 😕"))
         : ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             itemCount: searchResults.length,
             itemBuilder: (context, index) {
               var data = searchResults[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(data["Image"] ?? ""),
-                ),
-                title: Text(data["Username"] ?? ""),
-                subtitle: Text(data["Name"] ?? ""),
-                onTap: () {
-                  String chatRoomId = getChatRoomIdByUsername(myUsername!, data["Username"]);
-                  Map<String, dynamic> chatInfoMap = {
-                    "users": [myUsername, data["Username"]],
-                    "lastmessage": "",
-                    "lastmessagesendts": FieldValue.serverTimestamp(),
-                  };
-                  Databasemethods().createChatRoom(chatRoomId, chatInfoMap);
+              return Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                  leading: CircleAvatar(
+                    radius: 28,
+                    backgroundImage: NetworkImage(data["Image"] ?? ""),
+                    backgroundColor: Colors.grey.shade300,
+                  ),
+                  title: Text(
+                    data["Username"] ?? "",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(data["Name"] ?? ""),
+                  onTap: () {
+                    String chatRoomId = getChatRoomIdByUsername(myUsername!, data["Username"]);
+                    Map<String, dynamic> chatInfoMap = {
+                      "users": [myUsername, data["Username"]],
+                      "lastmessage": "",
+                      "lastmessagesendts": FieldValue.serverTimestamp(),
+                    };
+                    Databasemethods().createChatRoom(chatRoomId, chatInfoMap);
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ChatPage(
-                        name: data["Name"],
-                        profileurl: data["Image"],
-                        username: data["Username"],
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChatPage(
+                          name: data["Name"],
+                          profileurl: data["Image"],
+                          username: data["Username"],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               );
             },
           );
@@ -241,7 +272,7 @@ class _HomeState extends State<Home> {
             ),
             // Search
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 controller: searchController,
                 onChanged: initiateSearch,
@@ -250,12 +281,16 @@ class _HomeState extends State<Home> {
                   prefixIcon: const Icon(Icons.search),
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
 
             // Chat/List container
             Expanded(
@@ -273,3 +308,4 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
