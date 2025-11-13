@@ -74,7 +74,7 @@ class _HomeState extends State<Home> {
           itemCount: docs.length,
           itemBuilder: (context, index) {
             var docData = docs[index].data() as Map<String, dynamic>;
-            String chatRoomId = docs[index].id;
+            // String chatRoomId = docs[index].id;
             String lastMessage = docData["lastmessage"] ?? "";
 
             // Timestamp fix
